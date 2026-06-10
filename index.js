@@ -29,6 +29,26 @@ app.get("/clientes", (req, res)=>{
     
 })
 
+app.delete("/clientes/:cpf", (req, res) => {
+    const cpf = req.params.cpf
+    try{
+        const clientes = JSON.parse(fs.readFileSync("bd.json", "utf8"))
+        const indice_cliente = clientes.findIndex(
+            (cliente) => cliente.cpf.replace(/[^\d]/g,'') == cpf
+        )
+        if (indice_cliente == -1){
+            return res.status(404).json(
+                {resposta: "Cliente não existe no banco de dados!"}
+            )
+        }
+        clientes.splice(indice_cliente, 1)
+        fs.writeFileSync("bd.json", JSON.stringify(clientes), "utf8")
+        res.status(200).json({resposta: "Cliente deletado do banco de dados!"})
+    } catch(error){
+        res.status(500).json({resposta: error.message})
+    }        
+})
+
 app.listen(port, ()=>{
-    console.log("API rodando na porta " + port)
+    console.log("Api executando na porta " + port)
 })
